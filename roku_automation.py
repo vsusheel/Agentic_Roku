@@ -6,6 +6,7 @@ import time
 import logging
 import os
 import platform
+import tempfile
 from typing import Optional
 from playwright.sync_api import sync_playwright, Browser, BrowserContext, Page, TimeoutError as PlaywrightTimeoutError
 from config import AutomationConfig
@@ -97,27 +98,115 @@ class RokuMovieAgent:
                     self.logger.info("Safari (WebKit) launched successfully")
                 except Exception as safari_error:
                     self.logger.warning(f"Safari launch failed: {safari_error}")
-                    self.logger.info("Falling back to Firefox")
-                    browser_type = 'firefox'
-                    self.browser = self.playwright.firefox.launch(
+                    self.logger.info("Falling back to Chrome/Chromium (Firefox not supported on macOS)")
+                    browser_type = 'chrome'
+                    self.browser = self.playwright.chromium.launch(
                         headless=self.config.headless,
-                        slow_mo=self.config.slow_mo
+                        slow_mo=self.config.slow_mo,
+                        args=[
+                            '--disable-blink-features=AutomationControlled',
+                            '--disable-features=IsolateOrigins,site-per-process',
+                            '--disable-site-isolation-trials'
+                        ]
                     )
             elif browser_type == 'chrome' or browser_type == 'chromium':
-                self.browser = self.playwright.chromium.launch(
-                    headless=self.config.headless,
-                    slow_mo=self.config.slow_mo,
-                    args=[
+                # On macOS, Chrome incognito mode may not be supported
+                # Use persistent context instead of incognito context
+                if is_macos:
+                    user_data_dir = tempfile.mkdtemp(prefix='playwright-chrome-')
+                    self.logger.info(f"Using persistent context for Chrome on macOS (user data dir: {user_data_dir})")
+                    
+                    # Use launch_persistent_context to avoid incognito mode
+                    chrome_args = [
                         '--disable-blink-features=AutomationControlled',
                         '--disable-features=IsolateOrigins,site-per-process',
                         '--disable-site-isolation-trials'
                     ]
-                )
+                    
+                    # Get user agent
+                    user_agent = user_agents.get('chrome') or user_agents.get(default_browser)
+                    if not user_agent:
+                        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_7_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    
+                    # Create persistent context directly (avoids incognito mode)
+                    self.context = self.playwright.chromium.launch_persistent_context(
+                        user_data_dir,
+                        headless=self.config.headless,
+                        slow_mo=self.config.slow_mo,
+                        args=chrome_args,
+                        viewport={'width': self.config.window_size[0], 'height': self.config.window_size[1]},
+                        user_agent=user_agent,
+                        locale='en-US',
+                        timezone_id='America/Los_Angeles',
+                        extra_http_headers={
+                            'Accept-Language': 'en-US,en;q=0.9',
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+                        }
+                    )
+                    # Create new page from persistent context
+                    self.page = self.context.new_page()
+                    self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    self.logger.info("Successfully initialized Chrome with persistent context on macOS")
+                    # Skip the regular context creation below
+                    return
+                else:
+                    # Non-macOS: use regular launch
+                    chrome_args = [
+                        '--disable-blink-features=AutomationControlled',
+                        '--disable-features=IsolateOrigins,site-per-process',
+                        '--disable-site-isolation-trials'
+                    ]
+                    self.browser = self.playwright.chromium.launch(
+                        headless=self.config.headless,
+                        slow_mo=self.config.slow_mo,
+                        args=chrome_args
+                    )
             elif browser_type == 'firefox':
-                self.browser = self.playwright.firefox.launch(
-                    headless=self.config.headless,
-                    slow_mo=self.config.slow_mo
-                )
+                # Firefox on macOS may not be supported by Playwright
+                if is_macos:
+                    self.logger.warning("Firefox on macOS is not supported by Playwright. Falling back to Chrome/Chromium.")
+                    browser_type = 'chrome'
+                    # On macOS, Chrome incognito mode may not be supported - use persistent context
+                    user_data_dir = tempfile.mkdtemp(prefix='playwright-chrome-')
+                    self.logger.info(f"Using persistent context for Chrome on macOS (user data dir: {user_data_dir})")
+                    
+                    chrome_args = [
+                        '--disable-blink-features=AutomationControlled',
+                        '--disable-features=IsolateOrigins,site-per-process',
+                        '--disable-site-isolation-trials'
+                    ]
+                    
+                    # Get user agent
+                    user_agent = user_agents.get('chrome') or user_agents.get(default_browser)
+                    if not user_agent:
+                        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_7_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    
+                    # Create persistent context directly (avoids incognito mode)
+                    self.context = self.playwright.chromium.launch_persistent_context(
+                        user_data_dir,
+                        headless=self.config.headless,
+                        slow_mo=self.config.slow_mo,
+                        args=chrome_args,
+                        viewport={'width': self.config.window_size[0], 'height': self.config.window_size[1]},
+                        user_agent=user_agent,
+                        locale='en-US',
+                        timezone_id='America/Los_Angeles',
+                        extra_http_headers={
+                            'Accept-Language': 'en-US,en;q=0.9',
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+                        }
+                    )
+                    # Create new page from persistent context
+                    self.page = self.context.new_page()
+                    self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    self.logger.info("Successfully initialized Chrome with persistent context on macOS (Firefox fallback)")
+                    # Skip the regular context creation below
+                    return
+                else:
+                    self.browser = self.playwright.firefox.launch(
+                        headless=self.config.headless,
+                        slow_mo=self.config.slow_mo
+                    )
             elif browser_type == 'edge':
                 self.browser = self.playwright.chromium.launch(
                     headless=self.config.headless,
@@ -171,11 +260,79 @@ class RokuMovieAgent:
             self.logger.info(f"Successfully initialized {browser_type} browser with Playwright on {os_name}")
             
         except Exception as e:
+            error_msg = str(e).lower()
             self.logger.error(f"Failed to setup browser: {e}")
             self.logger.error(f"Browser: {self.config.browser}, Error type: {type(e).__name__}")
             
-            # Try Firefox as fallback
-            if self.config.browser.lower() != 'firefox':
+            # Check if it's a Firefox on macOS error or Chrome incognito error
+            if ('firefox' in error_msg and 'macos' in error_msg and 'not supported' in error_msg) or \
+               ('chrome' in error_msg and 'incognito' in error_msg and 'macos' in error_msg and 'not supported' in error_msg):
+                self.logger.warning("Browser not supported on macOS. Falling back to Chrome/Chromium with persistent context.")
+                try:
+                    browser_type = 'chrome'
+                    # Use persistent context to avoid incognito mode issues on macOS
+                    user_data_dir = tempfile.mkdtemp(prefix='playwright-chrome-')
+                    self.logger.info(f"Using persistent context for Chrome on macOS (user data dir: {user_data_dir})")
+                    
+                    chrome_args = [
+                        '--disable-blink-features=AutomationControlled',
+                        '--disable-features=IsolateOrigins,site-per-process',
+                        '--disable-site-isolation-trials'
+                    ]
+                    
+                    # Get appropriate user agent for Chrome on macOS
+                    fallback_ua = user_agents.get('chrome') or 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_7_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    
+                    # Create persistent context directly (avoids incognito mode)
+                    self.context = self.playwright.chromium.launch_persistent_context(
+                        user_data_dir,
+                        headless=self.config.headless,
+                        slow_mo=self.config.slow_mo,
+                        args=chrome_args,
+                        viewport={'width': self.config.window_size[0], 'height': self.config.window_size[1]},
+                        user_agent=fallback_ua,
+                        locale='en-US',
+                        timezone_id='America/Los_Angeles' if is_macos else 'UTC',
+                        extra_http_headers={
+                            'Accept-Language': 'en-US,en;q=0.9',
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+                        }
+                    )
+                    self.page = self.context.new_page()
+                    self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    self.logger.info("Successfully initialized Chrome/Chromium with persistent context as fallback browser")
+                    return
+                except Exception as chrome_fallback_error:
+                    self.logger.error(f"Chrome fallback also failed: {chrome_fallback_error}")
+                    # Try Safari as last resort on macOS
+                    if is_macos:
+                        try:
+                            self.logger.info("Attempting Safari as final fallback...")
+                            self.browser = self.playwright.webkit.launch(
+                                headless=self.config.headless,
+                                slow_mo=self.config.slow_mo
+                            )
+                            safari_ua = user_agents.get('safari') or 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_7_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.6 Safari/605.1.15'
+                            self.context = self.browser.new_context(
+                                viewport={'width': self.config.window_size[0], 'height': self.config.window_size[1]},
+                                user_agent=safari_ua,
+                                locale='en-US',
+                                timezone_id='America/Los_Angeles',
+                                extra_http_headers={
+                                    'Accept-Language': 'en-US,en;q=0.9',
+                                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+                                }
+                            )
+                            self.page = self.context.new_page()
+                            self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                            self.logger.info("Successfully initialized Safari as fallback browser")
+                            return
+                        except Exception as safari_fallback_error:
+                            self.logger.error(f"Safari fallback also failed: {safari_fallback_error}")
+                    raise
+            
+            # Try Firefox as fallback (only on non-macOS systems)
+            if self.config.browser.lower() != 'firefox' and not is_macos:
                 self.logger.info("Attempting fallback to Firefox...")
                 try:
                     self.browser = self.playwright.firefox.launch(
@@ -193,6 +350,43 @@ class RokuMovieAgent:
                     self.logger.info("Successfully initialized Firefox as fallback browser")
                 except Exception as fallback_error:
                     self.logger.error(f"Firefox fallback also failed: {fallback_error}")
+                    raise
+            elif is_macos and self.config.browser.lower() == 'firefox':
+                # On macOS, try Chrome or Safari instead - use persistent context to avoid incognito issues
+                self.logger.info("Firefox not supported on macOS. Attempting Chrome/Chromium with persistent context...")
+                try:
+                    user_data_dir = tempfile.mkdtemp(prefix='playwright-chrome-')
+                    self.logger.info(f"Using persistent context for Chrome on macOS (user data dir: {user_data_dir})")
+                    
+                    chrome_args = [
+                        '--disable-blink-features=AutomationControlled',
+                        '--disable-features=IsolateOrigins,site-per-process',
+                        '--disable-site-isolation-trials'
+                    ]
+                    
+                    chrome_ua = user_agents.get('chrome') or 'Mozilla/5.0 (Macintosh; Intel Mac OS X 12_7_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    
+                    # Create persistent context directly (avoids incognito mode)
+                    self.context = self.playwright.chromium.launch_persistent_context(
+                        user_data_dir,
+                        headless=self.config.headless,
+                        slow_mo=self.config.slow_mo,
+                        args=chrome_args,
+                        viewport={'width': self.config.window_size[0], 'height': self.config.window_size[1]},
+                        user_agent=chrome_ua,
+                        locale='en-US',
+                        timezone_id='America/Los_Angeles',
+                        extra_http_headers={
+                            'Accept-Language': 'en-US,en;q=0.9',
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+                        }
+                    )
+                    self.page = self.context.new_page()
+                    self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    self.logger.info("Successfully initialized Chrome/Chromium with persistent context as fallback for Firefox on macOS")
+                    return
+                except Exception as chrome_error:
+                    self.logger.error(f"Chrome fallback failed: {chrome_error}")
                     raise
             else:
                 raise

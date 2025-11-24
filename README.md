@@ -71,8 +71,8 @@ python main.py
 # Run with custom settings
 python main.py --max-loops 10 --loop-delay 10 --browser safari
 
-# Run with Firefox on macOS Monterey 12.7.3 (if Safari has issues)
-python main.py --browser firefox
+# Run with Chrome/Chromium on macOS (Firefox not supported, will auto-fallback to Chrome)
+python main.py --browser chrome
 
 # Run with Chrome (note: may be blocked by Roku Channel on macOS)
 python main.py --browser chrome
@@ -160,8 +160,10 @@ The application creates:
 1. **Safari not responding**: Ensure Safari automation is enabled
    - Safari > Preferences > Advanced > Enable "Show Develop menu"
    - Develop > Allow Remote Automation
-2. **Browser launch failed**: The automation will automatically fall back to Firefox if Safari fails
-3. **Chrome/Chromium blocked by Roku**: Roku Channel blocks Chrome on macOS. Use Safari or Firefox instead.
+2. **Browser launch failed**: The automation will automatically fall back to Chrome/Chromium if Safari fails
+3. **Firefox not supported**: Playwright's Firefox browser is not supported on macOS. If you specify Firefox, the automation will automatically fall back to Chrome/Chromium.
+4. **Chrome incognito mode error**: Chrome in incognito mode is not supported on macOS. The automation automatically uses a persistent context instead of incognito mode to avoid this issue.
+5. **Chrome/Chromium blocked by Roku**: Roku Channel may block Chrome on macOS. Use Safari instead if Chrome is blocked.
 
 #### Windows 11
 
@@ -189,14 +191,16 @@ The application creates:
 This automation has been optimized for macOS Monterey 12.7.3:
 
 - ✅ **Safari (WebKit)**: Primary browser with automatic fallback if unavailable
-- ✅ **Firefox**: Reliable alternative, automatically used as fallback
-- ✅ **Chrome/Chromium**: Supported but may be blocked by Roku Channel
+- ❌ **Firefox**: Not supported by Playwright on macOS (automatically falls back to Chrome)
+- ✅ **Chrome/Chromium**: Supported, automatically used as fallback for Safari/Firefox
 - ✅ **Edge**: Supported via Chromium engine
 
 **Recommended browsers for macOS Monterey:**
 1. **Safari** (best compatibility with Roku Channel)
-2. **Firefox** (reliable fallback, not blocked by Roku)
-3. Chrome/Edge (may show browser compatibility warnings)
+2. **Chrome/Chromium** (reliable fallback, automatically used if Safari fails or Firefox is requested)
+3. Edge (may show browser compatibility warnings)
+
+**Note:** If you specify Firefox on macOS, the automation will automatically use Chrome/Chromium instead, as Playwright's Firefox is not supported on macOS.
 
 #### Windows 11
 
