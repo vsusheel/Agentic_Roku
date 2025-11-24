@@ -160,10 +160,11 @@ The application creates:
 1. **Safari not responding**: Ensure Safari automation is enabled
    - Safari > Preferences > Advanced > Enable "Show Develop menu"
    - Develop > Allow Remote Automation
-2. **Browser launch failed**: The automation will automatically fall back to Chrome/Chromium if Safari fails
-3. **Firefox not supported**: Playwright's Firefox browser is not supported on macOS. If you specify Firefox, the automation will automatically fall back to Chrome/Chromium.
-4. **Chrome incognito mode error**: Chrome in incognito mode is not supported on macOS. The automation automatically uses a persistent context instead of incognito mode to avoid this issue.
-5. **Chrome/Chromium blocked by Roku**: Roku Channel may block Chrome on macOS. Use Safari instead if Chrome is blocked.
+2. **Safari autoplay permission error**: Safari/WebKit doesn't support the 'autoplay' permission API. The automation automatically skips permission grants for Safari - this is normal and won't affect functionality.
+3. **Browser launch failed**: The automation will automatically fall back to Chrome/Chromium if Safari fails
+4. **Firefox not supported**: Playwright's Firefox browser is not supported on macOS. If you specify Firefox, the automation will automatically fall back to Chrome/Chromium.
+5. **Chrome incognito mode error**: Chrome in incognito mode is not supported on macOS. The automation automatically uses a persistent context instead of incognito mode to avoid this issue.
+6. **Chrome/Chromium blocked by Roku**: Roku Channel may block Chrome on macOS. Use Safari instead if Chrome is blocked.
 
 #### Windows 11
 

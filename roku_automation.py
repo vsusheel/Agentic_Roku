@@ -245,12 +245,17 @@ class RokuMovieAgent:
             self.context = self.browser.new_context(**context_options)
             
             # Grant permissions for autoplay (important for video playback)
-            try:
-                base_url = self.config.movie_url.split('/details')[0]
-                self.context.grant_permissions(['autoplay'], origin=base_url)
-                self.logger.debug(f"Granted autoplay permissions for {base_url}")
-            except Exception as perm_error:
-                self.logger.warning(f"Could not grant permissions: {perm_error}")
+            # Note: Safari/WebKit doesn't support the 'autoplay' permission API
+            # Only grant for Chromium-based browsers (Chrome, Edge) and Firefox
+            if browser_type not in ['safari']:
+                try:
+                    base_url = self.config.movie_url.split('/details')[0]
+                    self.context.grant_permissions(['autoplay'], origin=base_url)
+                    self.logger.debug(f"Granted autoplay permissions for {base_url}")
+                except Exception as perm_error:
+                    self.logger.warning(f"Could not grant permissions: {perm_error}")
+            else:
+                self.logger.debug("Safari/WebKit doesn't support autoplay permission API - skipping permission grant")
             
             # Create new page
             self.page = self.context.new_page()
