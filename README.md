@@ -32,6 +32,8 @@ An agentic workflow application that automates playing movies on the Roku channe
    ```bash
    playwright install
    ```
+   
+   **Note:** On macOS 12 (Monterey), you may see a warning about "frozen ffmpeg browser which does not receive updates anymore". This is expected and safe to ignore - Playwright uses a stable browser build for macOS 12 that is compatible but no longer receives updates. The automation will work correctly despite this warning.
 
 4. (Optional) Enable Safari for automation:
    - Open Safari
@@ -160,15 +162,16 @@ The application creates:
 1. **Safari not responding**: Ensure Safari automation is enabled
    - Safari > Preferences > Advanced > Enable "Show Develop menu"
    - Develop > Allow Remote Automation
-2. **Safari autoplay permission error**: Safari/WebKit doesn't support the 'autoplay' permission API. The automation automatically skips permission grants for Safari - this is normal and won't affect functionality.
-3. **Safari "FixedBackgroundsPaintRelativeTo Document" error**: This is a known Playwright compatibility issue with Safari/WebKit. The automation automatically handles this error by:
+2. **"Frozen ffmpeg browser" warning**: On macOS 12, Playwright may show a warning about using a frozen browser build. This is expected and safe to ignore - it means Playwright is using a stable, compatible browser build for macOS 12 that no longer receives updates. The automation will work correctly.
+3. **Safari autoplay permission error**: Safari/WebKit doesn't support the 'autoplay' permission API. The automation automatically skips permission grants for Safari - this is normal and won't affect functionality.
+4. **Safari "FixedBackgroundsPaintRelativeTo Document" error**: This is a known Playwright compatibility issue with Safari/WebKit. The automation automatically handles this error by:
    - Catching the error and retrying page creation
    - Using existing pages from the context if available
    - If the issue persists, try updating Playwright: `pip install --upgrade playwright && playwright install`
-4. **Browser launch failed**: The automation will automatically fall back to Chrome/Chromium if Safari fails
-5. **Firefox not supported**: Playwright's Firefox browser is not supported on macOS. If you specify Firefox, the automation will automatically fall back to Chrome/Chromium.
-6. **Chrome incognito mode error**: Chrome in incognito mode is not supported on macOS. The automation automatically uses a persistent context instead of incognito mode to avoid this issue.
-7. **Chrome/Chromium blocked by Roku**: Roku Channel may block Chrome on macOS. Use Safari instead if Chrome is blocked.
+5. **Browser launch failed**: The automation will automatically fall back to Chrome/Chromium if Safari fails
+6. **Firefox not supported**: Playwright's Firefox browser is not supported on macOS. If you specify Firefox, the automation will automatically fall back to Chrome/Chromium.
+7. **Chrome incognito mode error**: Chrome in incognito mode is not supported on macOS. The automation automatically uses a persistent context instead of incognito mode to avoid this issue.
+8. **Chrome/Chromium blocked by Roku**: Roku Channel may block Chrome on macOS. Use Safari instead if Chrome is blocked.
 
 #### Windows 11
 
