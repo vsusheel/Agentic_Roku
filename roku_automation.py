@@ -144,8 +144,26 @@ class RokuMovieAgent:
                         }
                     )
                     # Create new page from persistent context
-                    self.page = self.context.new_page()
-                    self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    try:
+                        self.page = self.context.new_page()
+                        self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    except Exception as page_error:
+                        # Handle Safari/WebKit compatibility issues
+                        error_msg = str(page_error).lower()
+                        if 'fixedbackgroundspaintrelativeto' in error_msg or 'unknown setting' in error_msg:
+                            self.logger.warning(f"Page creation encountered compatibility issue: {page_error}")
+                            self.logger.info("Retrying page creation with error handling...")
+                            # Try to get existing pages or create a new one
+                            pages = self.context.pages
+                            if pages:
+                                self.page = pages[0]
+                                self.logger.info("Using existing page from context")
+                            else:
+                                # Last resort: try creating page again
+                                self.page = self.context.new_page()
+                        else:
+                            raise
+                        self.page.set_default_timeout(self.config.page_load_timeout * 1000)
                     self.logger.info("Successfully initialized Chrome with persistent context on macOS")
                     # Skip the regular context creation below
                     return
@@ -197,8 +215,26 @@ class RokuMovieAgent:
                         }
                     )
                     # Create new page from persistent context
-                    self.page = self.context.new_page()
-                    self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    try:
+                        self.page = self.context.new_page()
+                        self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    except Exception as page_error:
+                        # Handle Safari/WebKit compatibility issues
+                        error_msg = str(page_error).lower()
+                        if 'fixedbackgroundspaintrelativeto' in error_msg or 'unknown setting' in error_msg:
+                            self.logger.warning(f"Page creation encountered compatibility issue: {page_error}")
+                            self.logger.info("Retrying page creation with error handling...")
+                            # Try to get existing pages or create a new one
+                            pages = self.context.pages
+                            if pages:
+                                self.page = pages[0]
+                                self.logger.info("Using existing page from context")
+                            else:
+                                # Last resort: try creating page again
+                                self.page = self.context.new_page()
+                        else:
+                            raise
+                        self.page.set_default_timeout(self.config.page_load_timeout * 1000)
                     self.logger.info("Successfully initialized Chrome with persistent context on macOS (Firefox fallback)")
                     # Skip the regular context creation below
                     return
@@ -258,8 +294,37 @@ class RokuMovieAgent:
                 self.logger.debug("Safari/WebKit doesn't support autoplay permission API - skipping permission grant")
             
             # Create new page
-            self.page = self.context.new_page()
-            self.page.set_default_timeout(self.config.page_load_timeout * 1000)  # Playwright uses milliseconds
+            try:
+                self.page = self.context.new_page()
+                self.page.set_default_timeout(self.config.page_load_timeout * 1000)  # Playwright uses milliseconds
+            except Exception as page_error:
+                # Handle Safari/WebKit compatibility issues with unknown settings
+                error_msg = str(page_error).lower()
+                if 'fixedbackgroundspaintrelativeto' in error_msg or 'unknown setting' in error_msg:
+                    self.logger.warning(f"Page creation encountered compatibility issue: {page_error}")
+                    self.logger.info("This is a known Safari/WebKit compatibility issue. Attempting workaround...")
+                    # Try to get existing pages from context (some contexts auto-create a page)
+                    pages = self.context.pages
+                    if pages:
+                        self.page = pages[0]
+                        self.logger.info("Using existing page from context")
+                    else:
+                        # For Safari, try creating page with minimal settings
+                        # The error is internal to Playwright, so we'll try again
+                        self.logger.info("Retrying page creation...")
+                        try:
+                            self.page = self.context.new_page()
+                        except Exception as retry_error:
+                            # If it still fails, this might be a Playwright version issue
+                            self.logger.error(f"Page creation failed after retry: {retry_error}")
+                            self.logger.error("This may be a Playwright version compatibility issue with Safari/WebKit")
+                            raise RuntimeError(
+                                f"Failed to create page due to Safari/WebKit compatibility issue: {retry_error}. "
+                                "Try updating Playwright: pip install --upgrade playwright && playwright install"
+                            ) from retry_error
+                    self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                else:
+                    raise
             
             os_name = "Windows 11" if is_windows else ("macOS Monterey" if is_macos else system)
             self.logger.info(f"Successfully initialized {browser_type} browser with Playwright on {os_name}")
@@ -303,8 +368,22 @@ class RokuMovieAgent:
                             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
                         }
                     )
-                    self.page = self.context.new_page()
-                    self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    try:
+                        self.page = self.context.new_page()
+                        self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    except Exception as page_error:
+                        # Handle Safari/WebKit compatibility issues
+                        error_msg = str(page_error).lower()
+                        if 'fixedbackgroundspaintrelativeto' in error_msg or 'unknown setting' in error_msg:
+                            self.logger.warning(f"Page creation encountered compatibility issue: {page_error}")
+                            pages = self.context.pages
+                            if pages:
+                                self.page = pages[0]
+                            else:
+                                self.page = self.context.new_page()
+                        else:
+                            raise
+                        self.page.set_default_timeout(self.config.page_load_timeout * 1000)
                     self.logger.info("Successfully initialized Chrome/Chromium with persistent context as fallback browser")
                     return
                 except Exception as chrome_fallback_error:
@@ -328,8 +407,25 @@ class RokuMovieAgent:
                                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
                                 }
                             )
-                            self.page = self.context.new_page()
-                            self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                            try:
+                                self.page = self.context.new_page()
+                                self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                            except Exception as page_error:
+                                # Handle Safari/WebKit compatibility issues with unknown settings
+                                error_msg = str(page_error).lower()
+                                if 'fixedbackgroundspaintrelativeto' in error_msg or 'unknown setting' in error_msg:
+                                    self.logger.warning(f"Safari page creation encountered compatibility issue: {page_error}")
+                                    self.logger.info("This is a known Safari/WebKit compatibility issue. Attempting workaround...")
+                                    pages = self.context.pages
+                                    if pages:
+                                        self.page = pages[0]
+                                        self.logger.info("Using existing page from context")
+                                    else:
+                                        # Try one more time
+                                        self.page = self.context.new_page()
+                                else:
+                                    raise
+                                self.page.set_default_timeout(self.config.page_load_timeout * 1000)
                             self.logger.info("Successfully initialized Safari as fallback browser")
                             return
                         except Exception as safari_fallback_error:
@@ -386,8 +482,22 @@ class RokuMovieAgent:
                             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
                         }
                     )
-                    self.page = self.context.new_page()
-                    self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    try:
+                        self.page = self.context.new_page()
+                        self.page.set_default_timeout(self.config.page_load_timeout * 1000)
+                    except Exception as page_error:
+                        # Handle Safari/WebKit compatibility issues
+                        error_msg = str(page_error).lower()
+                        if 'fixedbackgroundspaintrelativeto' in error_msg or 'unknown setting' in error_msg:
+                            self.logger.warning(f"Page creation encountered compatibility issue: {page_error}")
+                            pages = self.context.pages
+                            if pages:
+                                self.page = pages[0]
+                            else:
+                                self.page = self.context.new_page()
+                        else:
+                            raise
+                        self.page.set_default_timeout(self.config.page_load_timeout * 1000)
                     self.logger.info("Successfully initialized Chrome/Chromium with persistent context as fallback for Firefox on macOS")
                     return
                 except Exception as chrome_error:
