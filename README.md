@@ -1,269 +1,409 @@
 # Roku Movie Automation Agent
 
-An agentic workflow application that automates playing movies on the Roku channel web interface using Playwright with cross-platform support (macOS Monterey 12.7.3 and Windows 11).
+## What is this?
 
-## Features
+This is a computer program that automatically plays movies on the Roku Channel website. Instead of manually clicking play each time, this program does it for you automatically. It can play the same movie multiple times in a row, which is useful for testing or monitoring purposes.
 
-- 🎬 Automated movie playback on Roku channel
-- 🔄 Configurable looping functionality
-- 📸 Screenshot capture for debugging
-- 📝 Comprehensive logging
-- ⚙️ Environment-based configuration
-- 🛡️ Error handling and recovery
+**Think of it like:** A robot that clicks the "Play" button on your computer for you, over and over again.
 
-## Prerequisites
+## What does it do?
 
-- **macOS** (tested on macOS Monterey 12.7.3) - supports Safari, Firefox, Chrome/Chromium, Edge
-- **Windows 11** (tested on Windows 11) - supports Chrome, Firefox, Edge
-- Python 3.8+
-- Playwright browsers installed
+- 🎬 **Plays movies automatically** - The program opens the Roku Channel website and starts playing a movie without you needing to click anything
+- 🔄 **Repeats automatically** - After a movie finishes, it can automatically start it again (you choose how many times)
+- 📸 **Takes pictures** - The program can save screenshots (pictures of the screen) so you can see what happened if something goes wrong
+- 📝 **Keeps a log** - It writes down everything it does in a text file, so you can check what happened later
+- ⚙️ **Easy to customize** - You can change settings like which browser to use, how many times to repeat, and more
+- 🛡️ **Handles errors** - If something goes wrong, the program tries to fix it automatically
 
-## Installation
+## What do I need to use this?
 
-### macOS Monterey 12.7.3
+### Your Computer
+- **Mac computer** (macOS Monterey 12.7.3 or similar) - OR
+- **Windows computer** (Windows 11 or similar)
+- An internet connection
 
-1. Clone or download this repository
-2. Install dependencies:
+### Software to Install
+You'll need to install a few free programs first:
+1. **Python** - This is the programming language the program uses (version 3.8 or newer)
+2. **Playwright** - This is a tool that lets the program control web browsers automatically
+
+### Web Browser
+The program works with these web browsers:
+- **Mac**: Safari, Chrome, or Edge
+- **Windows**: Chrome, Firefox, or Edge
+
+**Note:** On Mac, Firefox doesn't work with this program, but it will automatically use Chrome instead if you try to use Firefox.
+
+## How to Install (Step by Step)
+
+### For Mac Users
+
+#### Step 1: Get the Program Files
+1. Download or copy all the program files to a folder on your computer (like your Desktop or Documents folder)
+
+#### Step 2: Install Python (if you don't have it)
+1. Go to https://www.python.org/downloads/
+2. Download Python 3.8 or newer
+3. Run the installer and follow the instructions
+4. Make sure to check the box that says "Add Python to PATH" during installation
+
+#### Step 3: Open Terminal
+1. Press `Command + Space` to open Spotlight search
+2. Type "Terminal" and press Enter
+3. A black window will open - this is where you type commands
+
+#### Step 4: Go to the Program Folder
+1. In Terminal, type: `cd ` (with a space at the end)
+2. Drag the folder containing the program files into the Terminal window
+3. Press Enter
+
+#### Step 5: Install Required Software
+1. Type this command and press Enter:
    ```bash
    pip install -r requirements.txt
    ```
+   This installs the tools the program needs to work.
 
-3. Install Playwright browsers:
+2. Then type this command and press Enter:
    ```bash
    playwright install
+   ```
+   This downloads the web browsers the program will control.
+   
+   **Note:** You might see a message about "frozen ffmpeg browser" - this is normal and you can ignore it. It just means your Mac is using a stable version of the browser that works fine.
+
+#### Step 6: (Optional) Set Up Safari
+If you want to use Safari (the default Mac browser):
+1. Open Safari
+2. Click "Safari" in the menu bar at the top
+3. Click "Preferences" (or "Settings" on newer Macs)
+4. Click the "Advanced" tab
+5. Check the box that says "Show Develop menu in menu bar"
+6. Close the Preferences window
+7. Click "Develop" in the menu bar (it should appear now)
+8. Click "Allow Remote Automation"
+
+### For Windows Users
+
+#### Step 1: Get the Program Files
+1. Download or copy all the program files to a folder on your computer (like your Desktop or Documents folder)
+
+#### Step 2: Install Python (if you don't have it)
+1. Go to https://www.python.org/downloads/
+2. Download Python 3.8 or newer
+3. Run the installer
+4. **Important:** Check the box that says "Add Python to PATH" during installation
+5. Click "Install Now"
+
+#### Step 3: Open PowerShell or Command Prompt
+1. Press the Windows key
+2. Type "PowerShell" or "Command Prompt"
+3. Right-click on it and select "Run as Administrator" (this gives you permission to install things)
+4. Click "Yes" if Windows asks for permission
+
+#### Step 4: Go to the Program Folder
+1. In PowerShell/Command Prompt, type: `cd ` (with a space at the end)
+2. Navigate to your program folder. For example, if it's on your Desktop:
+   ```powershell
+   cd C:\Users\YourName\Desktop\Agentic_Roku
+   ```
+   (Replace "YourName" with your actual Windows username)
+
+#### Step 5: Install Required Software
+1. Type this command and press Enter:
+   ```powershell
+   pip install -r requirements.txt
+   ```
+   Wait for it to finish installing.
+
+2. Then type this command and press Enter:
+   ```powershell
+   playwright install
+   ```
+   This will download the web browsers. It might take a few minutes.
+
+#### Step 6: (If You Get Permission Errors)
+If Windows blocks something:
+1. Make sure you're running PowerShell/Command Prompt as Administrator (see Step 3)
+2. In PowerShell, you might need to type this first:
+   ```powershell
+   Set-ExecutionPolicy RemoteSigned
+   ```
+   Type "Y" and press Enter if it asks for confirmation
+
+**Note:** Safari is not available on Windows. The program will use Chrome, Firefox, or Edge instead.
+
+## How to Use the Program
+
+### Simple Way (Easiest)
+
+1. Open Terminal (Mac) or PowerShell/Command Prompt (Windows)
+2. Make sure you're in the program folder (see Installation steps above)
+3. Type this command and press Enter:
+   ```bash
+   python main.py
    ```
    
-   **Note:** On macOS 12 (Monterey), you may see a warning about "frozen ffmpeg browser which does not receive updates anymore". This is expected and safe to ignore - Playwright uses a stable browser build for macOS 12 that is compatible but no longer receives updates. The automation will work correctly despite this warning.
+   This will:
+   - Open a web browser automatically
+   - Go to the Roku Channel website
+   - Play the movie 5 times in a row
+   - Wait 5 seconds between each play
 
-4. (Optional) Enable Safari for automation:
-   - Open Safari
-   - Go to Safari > Preferences > Advanced
-   - Check "Show Develop menu in menu bar"
-   - Go to Develop > Allow Remote Automation
+### Customizing How It Works
 
-### Windows 11
+You can change how the program behaves by adding options to the command:
 
-1. Clone or download this repository
-2. Open PowerShell or Command Prompt as Administrator (recommended)
-3. Install dependencies:
-   ```powershell
-   pip install -r requirements.txt
-   ```
-
-4. Install Playwright browsers:
-   ```powershell
-   playwright install
-   ```
-
-5. (Optional) If you encounter permission issues, you may need to:
-   - Run PowerShell/CMD as Administrator
-   - Allow script execution: `Set-ExecutionPolicy RemoteSigned` (PowerShell)
-   - Ensure Windows Defender or antivirus allows Playwright browser downloads
-
-**Note:** Safari is not available on Windows. Use Chrome, Firefox, or Edge instead.
-
-## Usage
-
-### Basic Usage
-
+**Play the movie more times:**
 ```bash
-# Run with default settings (5 loops)
-python main.py
+python main.py --max-loops 10
+```
+(This plays the movie 10 times instead of 5)
 
-# Run with custom settings
-python main.py --max-loops 10 --loop-delay 10 --browser safari
+**Wait longer between plays:**
+```bash
+python main.py --loop-delay 10
+```
+(This waits 10 seconds between each play instead of 5)
 
-# Run with Chrome/Chromium on macOS (Firefox not supported, will auto-fallback to Chrome)
+**Use a specific browser:**
+```bash
+# Mac - Use Safari
+python main.py --browser safari
+
+# Mac or Windows - Use Chrome
 python main.py --browser chrome
 
-# Run with Chrome (note: may be blocked by Roku Channel on macOS)
-python main.py --browser chrome
-
-# Windows 11 - Run with Chrome (recommended for Windows)
-python main.py --browser chrome
-
-# Windows 11 - Run with Edge (native Windows browser)
+# Windows - Use Edge
 python main.py --browser edge
-
-# Windows 11 - Run with Firefox
-python main.py --browser firefox
-
-# Run in headless mode
-python main.py --headless
-
-# Run with slow motion for debugging
-python main.py --slow-mo 1000
-
-# Run infinite loops
-python main.py --max-loops -1
 ```
 
-### Configuration
-
-You can configure the automation using environment variables or command line arguments:
-
+**Play forever (until you stop it):**
 ```bash
-# macOS/Linux - Using environment variables
+python main.py --max-loops -1
+```
+(Press Ctrl+C to stop it)
+
+**Run without showing the browser window:**
+```bash
+python main.py --headless
+```
+(This runs in the background - you won't see the browser, but it still works)
+
+**Run slower (easier to see what's happening):**
+```bash
+python main.py --slow-mo 1000
+```
+(This makes everything happen 1 second slower, so you can watch what's happening)
+
+### Advanced: Using Settings Files
+
+Instead of typing options every time, you can set them once using environment variables. This is optional - most people don't need this.
+
+**On Mac:**
+```bash
 export MAX_LOOPS=10
 export LOOP_DELAY=5
 export BROWSER=safari
 python main.py
 ```
 
+**On Windows (PowerShell):**
 ```powershell
-# Windows 11 - Using environment variables (PowerShell)
 $env:MAX_LOOPS=10
 $env:LOOP_DELAY=5
 $env:BROWSER=chrome
 python main.py
 ```
 
+**On Windows (Command Prompt):**
 ```cmd
-# Windows 11 - Using environment variables (CMD)
 set MAX_LOOPS=10
 set LOOP_DELAY=5
 set BROWSER=chrome
 python main.py
 ```
 
-### Command Line Options
+### What Do All These Options Mean?
 
-- `--max-loops`: Maximum number of loops (-1 for infinite)
-- `--loop-delay`: Delay between loops in seconds
-- `--browser`: Browser to use (safari, chrome, firefox, edge)
-- `--headless`: Run browser in headless mode
-- `--slow-mo`: Slow down operations by specified milliseconds
-- `--log-level`: Logging level (DEBUG, INFO, WARNING, ERROR)
+- `--max-loops`: How many times to play the movie (use -1 to play forever)
+- `--loop-delay`: How many seconds to wait between each play
+- `--browser`: Which web browser to use (safari, chrome, firefox, or edge)
+- `--headless`: Run without showing the browser window (runs in background)
+- `--slow-mo`: Make everything slower so you can watch what's happening (number is in milliseconds, so 1000 = 1 second slower)
+- `--log-level`: How much information to save in the log file (DEBUG = lots of info, ERROR = only errors)
 
-## Configuration File
+## Changing Settings in the Config File
 
-The application uses `config.py` for default settings. You can modify:
+If you want to change the default movie or other settings permanently, you can edit the `config.py` file. This is optional - most people use the command line options instead.
 
-- Movie URL
-- Browser settings
-- Timeout values
-- Selector patterns
-- Screenshot settings
+You can change:
+- Which movie to play (the URL/website address)
+- Default browser
+- How long to wait for things to load
+- Where to save screenshots
 
-## Output
+**Note:** Only edit this file if you're comfortable editing code. If you're not sure, just use the command line options instead.
 
-The application creates:
+## What Files Does the Program Create?
 
-- `roku_automation.log`: Detailed execution log
-- `screenshots/`: Screenshots for debugging
-- Console output with real-time status
+When you run the program, it creates:
 
-## Troubleshooting
+1. **`roku_automation.log`** - A text file that records everything the program did. Useful if something goes wrong and you need to figure out what happened.
 
-### Common Issues
+2. **`screenshots/` folder** - A folder containing pictures of the screen at different points. These help you see what the program was doing.
 
-#### macOS Monterey 12.7.3
+3. **Messages on screen** - The program will show you what it's doing in real-time as it runs.
 
-1. **Safari not responding**: Ensure Safari automation is enabled
-   - Safari > Preferences > Advanced > Enable "Show Develop menu"
-   - Develop > Allow Remote Automation
-2. **"Frozen ffmpeg browser" warning**: On macOS 12, Playwright may show a warning about using a frozen browser build. This is expected and safe to ignore - it means Playwright is using a stable, compatible browser build for macOS 12 that no longer receives updates. The automation will work correctly.
-3. **Safari autoplay permission error**: Safari/WebKit doesn't support the 'autoplay' permission API. The automation automatically skips permission grants for Safari - this is normal and won't affect functionality.
-4. **Safari "FixedBackgroundsPaintRelativeTo Document" error**: This is a known Playwright compatibility issue with Safari/WebKit. The automation automatically handles this error by:
-   - Catching the error and retrying page creation
-   - Using existing pages from the context if available
-   - If the issue persists, try updating Playwright: `pip install --upgrade playwright && playwright install`
-5. **Browser launch failed**: The automation will automatically fall back to Chrome/Chromium if Safari fails
-6. **Firefox not supported**: Playwright's Firefox browser is not supported on macOS. If you specify Firefox, the automation will automatically fall back to Chrome/Chromium.
-7. **Chrome incognito mode error**: Chrome in incognito mode is not supported on macOS. The automation automatically uses a persistent context instead of incognito mode to avoid this issue.
-8. **Chrome/Chromium blocked by Roku**: Roku Channel may block Chrome on macOS. Use Safari instead if Chrome is blocked.
+## Problems and Solutions
 
-#### Windows 11
+### Common Issues on Mac
 
-1. **Permission denied errors**: 
-   - Run PowerShell/CMD as Administrator
-   - Check Windows Defender exclusions for Playwright browsers
-   - Ensure antivirus isn't blocking browser downloads
-2. **Browser not found**: 
-   - Run `playwright install` to ensure browsers are installed
-   - Check that Chrome/Edge/Firefox are installed on your system
-3. **Script execution blocked**:
-   - PowerShell: Run `Set-ExecutionPolicy RemoteSigned`
-   - Or run: `python -m playwright install` directly
+1. **Safari won't work / "Safari not responding"**
+   - **Solution:** Make sure Safari automation is turned on:
+     - Open Safari
+     - Click "Safari" → "Preferences" → "Advanced" tab
+     - Check "Show Develop menu in menu bar"
+     - Click "Develop" → "Allow Remote Automation"
 
-#### Cross-Platform
+2. **Warning message about "frozen ffmpeg browser"**
+   - **What it means:** This is just a message saying your Mac is using a stable browser version
+   - **Solution:** You can ignore this - it's not a problem, the program will still work fine
 
-4. **Element not found**: The page structure may have changed
-5. **Timeout errors**: Increase timeout values in config
-6. **Permission denied**: Check browser automation permissions
+3. **Error about "autoplay permission"**
+   - **What it means:** Safari handles video playback differently than other browsers
+   - **Solution:** The program handles this automatically - you don't need to do anything
 
-### Platform Compatibility
+4. **Error with long technical name like "FixedBackgroundsPaint..."**
+   - **What it means:** Sometimes Safari and the automation tool don't work perfectly together
+   - **Solution:** The program tries to fix this automatically. If it keeps happening, try updating the tools:
+     ```bash
+     pip install --upgrade playwright
+     playwright install
+     ```
 
-#### macOS Monterey 12.7.3
+5. **Browser won't start**
+   - **Solution:** The program will automatically try using Chrome instead of Safari
 
-This automation has been optimized for macOS Monterey 12.7.3:
+6. **Firefox doesn't work**
+   - **What it means:** Firefox isn't supported on Mac with this program
+   - **Solution:** The program will automatically use Chrome instead
 
-- ✅ **Safari (WebKit)**: Primary browser with automatic fallback if unavailable
-- ❌ **Firefox**: Not supported by Playwright on macOS (automatically falls back to Chrome)
-- ✅ **Chrome/Chromium**: Supported, automatically used as fallback for Safari/Firefox
-- ✅ **Edge**: Supported via Chromium engine
+7. **Chrome gives an error about "incognito mode"**
+   - **What it means:** Chrome's private browsing mode doesn't work with this program
+   - **Solution:** The program automatically uses a different mode - you don't need to do anything
 
-**Recommended browsers for macOS Monterey:**
-1. **Safari** (best compatibility with Roku Channel)
-2. **Chrome/Chromium** (reliable fallback, automatically used if Safari fails or Firefox is requested)
-3. Edge (may show browser compatibility warnings)
+8. **Roku Channel blocks Chrome**
+   - **What it means:** Sometimes the Roku website doesn't work well with Chrome on Mac
+   - **Solution:** Use Safari instead: `python main.py --browser safari`
 
-**Note:** If you specify Firefox on macOS, the automation will automatically use Chrome/Chromium instead, as Playwright's Firefox is not supported on macOS.
+### Common Issues on Windows
 
-#### Windows 11
+1. **"Permission denied" or "Access denied" errors**
+   - **Solution:** Make sure you're running PowerShell or Command Prompt as Administrator:
+     - Right-click on PowerShell/Command Prompt
+     - Select "Run as Administrator"
+     - Click "Yes" when Windows asks for permission
+   - Also check that Windows Defender or your antivirus isn't blocking the program
 
-This automation has been optimized for Windows 11:
+2. **"Browser not found" error**
+   - **Solution:** Make sure the browsers are installed:
+     ```powershell
+     playwright install
+     ```
+   - Also make sure you have Chrome, Edge, or Firefox installed on your computer
 
-- ✅ **Chrome/Chromium**: Primary browser, fully supported
-- ✅ **Edge**: Native Windows browser, excellent compatibility
-- ✅ **Firefox**: Fully supported alternative
-- ❌ **Safari**: Not available on Windows (automatically falls back to Chrome)
+3. **"Script execution blocked" error**
+   - **Solution:** In PowerShell, type this command:
+     ```powershell
+     Set-ExecutionPolicy RemoteSigned
+     ```
+     Type "Y" and press Enter if it asks for confirmation
 
-**Recommended browsers for Windows 11:**
-1. **Chrome** (best compatibility with Roku Channel on Windows)
-2. **Edge** (native Windows browser, excellent performance)
-3. **Firefox** (reliable alternative)
+### Problems That Can Happen on Any Computer
 
-**Note:** Roku Channel works well with Chrome and Edge on Windows 11, unlike macOS where Chrome may be blocked.
+4. **"Element not found" error**
+   - **What it means:** The Roku website might have changed, so the program can't find the play button
+   - **Solution:** The website might have been updated. Check if you can manually play a movie on the website first
 
-### Debug Mode
+5. **"Timeout" errors**
+   - **What it means:** The program waited too long for something to happen
+   - **Solution:** Your internet might be slow, or the website might be loading slowly. Try again later
 
-Run with debug logging for detailed information:
+6. **"Permission denied" error**
+   - **What it means:** The program doesn't have permission to control the browser
+   - **Solution:** Make sure you followed all the installation steps, especially enabling browser automation
+
+### Which Browser Should I Use?
+
+#### For Mac Users
+
+**Best choice:** Safari
+- Works best with the Roku Channel website
+- Usually the most reliable
+
+**If Safari doesn't work:** Chrome
+- The program will automatically use Chrome if Safari fails
+- Note: Sometimes Roku Channel blocks Chrome on Mac, so Safari is usually better
+
+**Don't use:** Firefox
+- Firefox doesn't work with this program on Mac
+- The program will automatically switch to Chrome if you try to use Firefox
+
+#### For Windows Users
+
+**Best choices (all work well):**
+1. **Chrome** - Usually works best
+2. **Edge** - Windows' built-in browser, also works great
+3. **Firefox** - Also works fine
+
+**Can't use:** Safari
+- Safari isn't available on Windows
+- The program will automatically use Chrome instead
+
+### Getting More Information (Debug Mode)
+
+If something isn't working and you want to see more details about what's happening:
 
 ```bash
 python main.py --log-level DEBUG
 ```
 
-## Framework Choice
+This will show you a lot more information about what the program is doing, which can help figure out what went wrong.
 
-This implementation uses **Playwright**, which offers:
+## Technical Details (For Those Who Are Curious)
 
-- ✅ **Modern and fast** - Built for modern web apps
-- ✅ **Multi-browser support** - Safari, Chrome, Firefox, Edge
-- ✅ **Built-in browser management** - No driver setup needed
-- ✅ **Excellent debugging** - Built-in tracing and debugging tools
-- ✅ **Auto-waiting** - Smart waiting for elements and network
-- ✅ **Cross-platform** - Works on macOS, Windows, Linux
+This program uses a tool called **Playwright** to control web browsers. Playwright is like a remote control for web browsers - it can open browsers, click buttons, fill in forms, and do other things automatically.
 
-### Why Playwright over Selenium?
+**Why Playwright?**
+- It's modern and works with current websites
+- It works with multiple browsers (Safari, Chrome, Firefox, Edge)
+- It's easier to set up than older tools
+- It's actively maintained and updated
+- It's faster and more reliable than alternatives
 
-- **Faster execution** - No WebDriver overhead
-- **Better reliability** - Built-in auto-waiting and retry logic
-- **Modern API** - More intuitive and powerful
-- **Better debugging** - Built-in tracing and screenshots
-- **Active development** - Microsoft-backed, actively maintained
+## Important Legal Information
 
-## Legal Notice
+**This program is for educational and testing purposes only.**
 
-This tool is for educational and testing purposes only. Please ensure you comply with:
-- Roku's Terms of Service
-- Local laws and regulations
-- Platform usage policies
+Please make sure you:
+- Follow Roku's Terms of Service (the rules for using their website)
+- Follow your local laws and regulations
+- Use the program responsibly and ethically
 
-## Contributing
+**What this means:** Don't use this program to do anything that violates Roku's rules or breaks any laws. Use it only for legitimate testing or learning purposes.
 
-Feel free to submit issues and enhancement requests!
+## Getting Help
 
-## License
+If you have problems or questions:
+- Check the "Problems and Solutions" section above
+- Look at the log file (`roku_automation.log`) to see what happened
+- Check the screenshots folder to see what the program was doing
 
-This project is for educational purposes. Use responsibly and ethically.
+## Want to Help Improve This Program?
+
+If you find problems or have ideas for improvements, feel free to share them! This helps make the program better for everyone.
+
+---
+
+**Remember:** This is an educational tool. Use it responsibly and make sure you're following all applicable rules and laws.
